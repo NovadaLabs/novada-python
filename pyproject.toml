@@ -1,0 +1,70 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "novada"
+dynamic = ["version"]
+description = "Python SDK for the Novada API — proxy management, scraping, and wallet endpoints."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [{ name = "Novada Labs" }]
+keywords = ["novada", "proxy", "scraper", "web-unblocker", "sdk"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+]
+dependencies = ["httpx>=0.23"]
+
+[project.urls]
+Homepage = "https://novada.com"
+Source = "https://github.com/NovadaLabs/novada-python"
+
+[project.optional-dependencies]
+dev = ["ruff", "mypy", "pytest", "respx"]
+
+[tool.hatch.version]
+path = "src/novada/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/novada"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+# Optional[...] is kept deliberately: these annotations are resolved at runtime
+# by typing.get_type_hints during decoding, and PEP 604 (X | None) is not
+# evaluable on Python 3.9, which is in the support matrix.
+ignore = ["UP007", "UP045"]
+
+[tool.mypy]
+# python_version is intentionally not pinned: mypy >= 2 no longer accepts 3.9
+# as a target, and it is run across the support matrix in CI anyway. Runtime
+# 3.9 compatibility (e.g. avoiding PEP 604 in evaluated annotations) is handled
+# in the code itself.
+strict = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: tests that hit the live Novada API (require NOVADA_API_KEY)",
+]
